@@ -1,18 +1,16 @@
-from django.shortcuts import render, redirect, get_object_or_404 # get_object_or_404 ekle
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Transaction, Category
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth import login, logout
 
-# Main page view (Ana sayfa görünümü)
+# Kullanıcı giriş yapmamışsa bu sayfayı gösterme, login'e at
+@login_required(login_url='login')
 def index(request):
-    # Fetch all transactions from DB, newest first
-    # Tüm harcamaları veritabanından çek (en yeni en başta)
-    transactions = Transaction.objects.all().order_by('-date', '-created_at')
+    # Sadece giriş yapan kullanıcının (request.user) harcamalarını getir
+    transactions = Transaction.objects.filter(user=request.user).order_by('-date', '-created_at')
     
-    # Fetch all categories for the dropdown menu
-    # Açılır menü için tüm kategorileri çek
     categories = Category.objects.all()
-    
-    # Calculate total expense
-    # Toplam harcamayı hesapla
     total_expense = sum(t.amount for t in transactions)
 
     context = {
@@ -22,64 +20,68 @@ def index(request):
     }
     return render(request, 'index.html', context)
 
-# Function to handle adding new transactions
-# Yeni harcama ekleme işlemini yapan fonksiyon
+@login_required(login_url='login')
 def add_transaction(request):
     if request.method == 'POST':
-        # Get data from form
-        # Formdan gelen verileri al (artık 'category_name' alıyoruz)
-        category_name = request.POST.get('category_name') 
-        amount = request.POST.get('amount')
-        description = request.POST.get('description')
-        date = request.POST.get('date')
-
-        # CRITICAL STEP: Get the category if exists, OR create it automatically
-        # KRİTİK ADIM: Kategori veritabanında varsa getir, yoksa yeni yarat.
-        # .lower() kullanarak "Food" ve "food" karışıklığını önlüyoruz.
-        category, created = Category.objects.get_or_create(name=category_name.lower())
-
-        # Create the transaction linked to that category
-        # Harcamayı o kategoriye bağlayarak oluştur
-        Transaction.objects.create(
-            category=category,
-            amount=amount,
-            description=description,
-            date=date
-        )
-        
-        return redirect('index')
-    
-def update_transaction(request, id):
-    # Fetch the specific transaction or show 404 error
-    # İlgili işlemi çek, yoksa hata ver
-    transaction = get_object_or_404(Transaction, id=id)
-
-    if request.method == 'POST':
-        # Get updated data from form
-        # Formdan güncel verileri al
         category_name = request.POST.get('category_name')
         amount = request.POST.get('amount')
         description = request.POST.get('description')
         date = request.POST.get('date')
 
-        # Get or create the new category (if user changed it)
-        # Kategori değiştiyse bul veya oluştur
         category, created = Category.objects.get_or_create(name=category_name.lower())
 
-        # Update fields
-        # Alanları güncelle
-        transaction.category = category
-        transaction.amount = amount
-        transaction.description = description
-        transaction.date = date
-        
-        # Save changes to DB
-        # Değişiklikleri kaydet
-        transaction.save()
-
-        # Redirect to homepage
+        Transaction.objects.create(
+            user=request.user,  # Harcamayı yapan kişiyi kaydet
+            category=category,
+            amount=amount,
+            description=description,
+            date=date
+        )
         return redirect('index')
 
-    # If GET request, show the edit page with existing data
-    # Eğer GET isteğiyse, mevcut verilerle düzenleme sayfasını göster
+@login_required(login_url='login')
+def update_transaction(request, id):
+    # Sadece kendi harcamasını düzenleyebilsin (başkası ID tahmin edip giremesin)
+    transaction = get_object_or_404(Transaction, id=id, user=request.user)
+
+    if request.method == 'POST':
+        category_name = request.POST.get('category_name')
+        category, created = Category.objects.get_or_create(name=category_name.lower())
+
+        transaction.category = category
+        transaction.amount = request.POST.get('amount')
+        transaction.description = request.POST.get('description')
+        transaction.date = request.POST.get('date')
+        transaction.save()
+
+        return redirect('index')
+
     return render(request, 'edit.html', {'transaction': transaction})
+
+# --- YENİ EKLENEN LOGIN/REGISTER FONKSİYONLARI ---
+
+def register_view(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user) # Kayıt olunca otomatik giriş yap
+            return redirect('index')
+    else:
+        form = UserCreationForm()
+    return render(request, 'register.html', {'form': form})
+
+def login_view(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            return redirect('index')
+    else:
+        form = AuthenticationForm()
+    return render(request, 'login.html', {'form': form})
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')

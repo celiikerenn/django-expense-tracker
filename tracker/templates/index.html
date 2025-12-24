@@ -49,6 +49,10 @@
         }
     </style>
 </head>
+<div style="display: flex; justify-content: space-between; padding: 10px 10%; background: #ddd;">
+    <span>Welcome, <strong>{{ request.user.username }}</strong></span>
+    <a href="{% url 'logout' %}" style="color: red; text-decoration: none;">Logout</a>
+</div>
 <body>
 
     <div class="container">
