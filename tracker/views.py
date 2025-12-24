@@ -5,6 +5,8 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout
 from django.http import HttpResponse
 from django.contrib.auth.models import User
+from django.utils import timezone
+from django.contrib import messages
 
 # Kullanıcı giriş yapmamışsa bu sayfayı gösterme, login'e at
 @login_required(login_url='login')
