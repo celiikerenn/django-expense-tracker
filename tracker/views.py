@@ -99,3 +99,18 @@ def create_superuser_view(request):
             return HttpResponse("The admin user already exists.")
     except Exception as e:
         return HttpResponse(f"Hata oluştu: {e}")
+    
+    # tracker/views.py içine ekle
+
+@login_required(login_url='login')
+def delete_transaction(request, id):
+    # Sadece o kullanıcıya ait işlemi bul, yoksa hata ver
+    transaction = get_object_or_404(Transaction, id=id, user=request.user)
+    
+    if request.method == 'POST':
+        transaction.delete()
+        return redirect('index')
+    
+    # Güvenlik için GET isteğiyle silinmez, onay sayfasına veya direkt POST'a yönlendirilir
+    # Biz pratik olsun diye direkt işlem yapacağız ama HTML'de form kullanacağız.
+    return redirect('index')
