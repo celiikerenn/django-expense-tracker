@@ -3,6 +3,8 @@ from .models import Transaction, Category
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout
+from django.http import HttpResponse
+from django.contrib.auth.models import User
 
 # Kullanıcı giriş yapmamışsa bu sayfayı gösterme, login'e at
 @login_required(login_url='login')
@@ -85,3 +87,15 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('login')
+
+def create_superuser_view(request):
+    try:
+        # Eğer admin zaten varsa hata vermesin
+        if not User.objects.filter(username='admin').exists():
+            # Kullanıcı adı: admin, Şifre: 123456 (Bunu hemen değiştireceğiz)
+            User.objects.create_superuser('admin', 'admin@example.com', '123456')
+            return HttpResponse("Superuser created! <br>User: admin <br>Pass: 123456")
+        else:
+            return HttpResponse("The admin user already exists.")
+    except Exception as e:
+        return HttpResponse(f"Hata oluştu: {e}")
