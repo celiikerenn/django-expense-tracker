@@ -125,3 +125,14 @@ def logout_view(request):
     logout(request)
     messages.success(request, 'You have been logged out successfully!')
     return redirect('login')
+
+from django.contrib.auth.models import User
+from django.http import HttpResponse
+
+def create_admin_account(request):
+    if not User.objects.filter(username='admin').exists():
+        # Kullanıcı adı: admin, Şifre: admin123!
+        User.objects.create_superuser('admin', 'admin@example.com', 'admin123!')
+        return HttpResponse("Superuser 'admin' başarıyla oluşturuldu! Şifre: admin123!")
+    else:
+        return HttpResponse("Bu kullanıcı zaten veritabanında mevcut.")
