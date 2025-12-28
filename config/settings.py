@@ -116,7 +116,17 @@ USE_TZ = True
 
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'tracker', 'static'), # static klasörünün tam yolu
+]
+
 # Sunucuda dosyaların toplanacağı yer
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # CSS sıkıştırma ve önbellekleme ayarı
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Giriş yapılmadığında yönlendirilecek sayfa
+LOGIN_URL = 'login' 
+
+# Giriş yapıldıktan sonra yönlendirilecek sayfa
+LOGIN_REDIRECT_URL = 'index'

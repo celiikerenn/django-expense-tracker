@@ -1,119 +1,52 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expense Tracker</title>
-
+    <title>Expense Tracker | Dashboard</title>
     <link rel="stylesheet" href="{% static 'style.css' %}">
-
-    <style>
-        /* Table styling using Internal CSS */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
-        }
-        th {
-            background-color: #4CAF50;
-            color: white;
-        }
-        /* Form styling */
-        .form-group {
-            margin-bottom: 15px;
-        }
-        input, select {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            box-sizing: border-box; 
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            cursor: pointer;
-            width: 100%;
-        }
-        /* Hidden class for JS interaction */
-        .hidden {
-            display: none;
-        }
-    </style>
 </head>
-
-<div style="display: flex; justify-content: space-between; padding: 10px 10%; background: #ddd;">
-    <span>Welcome, <strong>{{ request.user.username }}</strong></span>
-    <a href="{% url 'logout' %}" style="color: red; text-decoration: none;">Logout</a>
-</div>
-
 <body>
 
+    <div class="nav-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 5%; background: #fff; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+        <div>
+            <span>Welcome, <strong>{{ request.user.username }}</strong></span>
+        </div>
+        
+        <div style="display: flex; align-items: center;">
+            <a href="{% url 'logout' %}" class="btn btn-danger" style="width: auto; padding: 8px 15px; font-size: 14px; margin: 0;">Logout</a>
+        </div>
+    </div>
+
     <div class="container">
-        <h1 style="text-align: center; color: #333; border-bottom: 2px solid #4CAF50; padding-bottom: 10px;">
-            Expense Tracker Project
-        </h1>
-
-        {% if messages %}
-            <div style="margin: 20px auto; width: 80%; text-align: center;">
-                {% for message in messages %}
-                    <div style="padding: 10px; background-color: #f8d7da; color: #721c24; border-radius: 5px; border: 1px solid #f5c6cb; margin-bottom: 10px;">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-
-        <div style="background-color: #e8f5e9; padding: 15px; border-radius: 5px; text-align: center; font-size: 1.2em;">
+        <h1 style="text-align:center">Expense Tracker</h1>
+        
+        <div style="background:#e8f5e9; padding:20px; border-radius:10px; text-align:center; margin-bottom:20px;">
             Total Expense: <strong>{{ total_expense }} ₺</strong>
         </div>
 
-        <br>
+        <button class="btn btn-success" onclick="toggleForm()">+ Add New Transaction</button>
 
-        <button onclick="toggleForm()">+ Add New Transaction</button>
-
-        <div id="transactionForm" class="hidden">
-            <h3 style="color: #666;">Add New Expense</h3>
+        <div id="transactionForm" class="hidden" style="border:1px solid #ddd; padding:20px; margin-top:15px; border-radius:10px;">
             <form action="{% url 'add_transaction' %}" method="POST">
-                {% csrf_token %} 
+                {% csrf_token %}
                 <div class="form-group">
-                    <label>Category Name:</label>
-                    <input type="text" name="category_name" placeholder="E.g., Food, Travel" required>
+                    <label>Category Name</label>
+                    <input type="text" name="category_name" placeholder="e.g. food, travel" required>
                 </div>
-
                 <div class="form-group">
-                    <label>Amount (TL):</label>
+                    <label>Amount (TL)</label>
                     <input type="number" name="amount" step="0.01" placeholder="0.00" required>
                 </div>
-
                 <div class="form-group">
-                    <label>Date:</label>
-                    <input type="date" name="date" id="dateInput" required> 
+                    <label>Date</label>
+                    <input type="date" name="date" id="dateInput" required>
                 </div>
-                
-                <script>
-                    // Bugünü al ve YYYY-MM-DD formatına çevir
-                    const today = new Date().toISOString().split('T')[0];
-                    // Inputun 'max' özelliğine bugünü ata
-                    document.getElementById('dateInput').setAttribute('max', today);
-                    // Varsayılan olarak bugünü seçili getir (İstersen)
-                    document.getElementById('dateInput').value = today;
-                </script>
-
                 <div class="form-group">
-                    <label>Description:</label>
-                    <input type="text" name="description" placeholder="Optional description">
+                    <label>Description</label>
+                    <input type="text" name="description" placeholder="optional">
                 </div>
-
-                <button type="submit">Save Transaction</button>
+                <button type="submit" class="btn btn-success">Save Transaction</button>
             </form>
         </div>
 
@@ -129,41 +62,19 @@
                 </tr>
             </thead>
             <tbody>
-                {% for transaction in transactions %}
+                {% for t in transactions %}
                 <tr>
-                    <td>{{ transaction.category.name }}</td>
-                    <td>{{ transaction.description }}</td>
-                    <td>{{ transaction.date }}</td>
-                    <td style="font-weight: bold; color: #d32f2f;">
-                        -{{ transaction.amount }} ₺
-                    </td>
-                    <td>
-                        <a href="{% url 'update_transaction' transaction.id %}" 
-                        style="background-color: #2196F3; color: white; padding: 5px 10px; text-decoration: none; border-radius: 4px; font-size: 0.9em;">
-                        Edit
-                        </a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5" style="text-align: center;">No transactions found yet.</td>
+                    <td>{{ t.category.name }}</td>
+                    <td>{{ t.description|default:"-" }}</td>
+                    <td>{{ t.date|date:"d.m.Y" }}</td>
+                    <td style="color:red; font-weight:bold">-{{ t.amount }} ₺</td>
+                    <td><a href="{% url 'update_transaction' t.id %}" class="btn-edit-small">Edit</a></td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 
-    <script>
-        // Function to toggle the visibility of the form
-        function toggleForm() {
-            var form = document.getElementById("transactionForm");
-            if (form.style.display === "block") {
-                form.style.display = "none";
-            } else {
-                form.style.display = "block";
-            }
-        }
-    </script>
-
+    <script src="{% static 'script.js' %}"></script>
 </body>
 </html>

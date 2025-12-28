@@ -3,110 +3,41 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Transaction</title>
     <link rel="stylesheet" href="{% static 'style.css' %}">
-    
-    <style>
-        .container { width: 50%; margin-top: 50px; margin-left: auto; margin-right: auto; }
-        .form-group { margin-bottom: 15px; }
-        input { width: 100%; padding: 10px; margin-top: 5px; box-sizing: border-box; }
-        
-        /* Buton Stilleri */
-        .btn {
-            padding: 12px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
-            font-weight: bold;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            box-sizing: border-box;
-        }
-        
-        .btn-update { background-color: #2196F3; color: white; }
-        .btn-update:hover { background-color: #0b7dda; }
-
-        .btn-cancel { background-color: #6c757d; color: white; }
-        .btn-cancel:hover { background-color: #5a6268; }
-
-        .btn-delete { background-color: #dc3545; color: white; }
-        .btn-delete:hover { background-color: #c82333; }
-        
-        /* Yan yana buton grubu */
-        .button-group {
-            display: flex;
-            gap: 15px; /* Butonlar arası boşluk */
-            margin-top: 10px;
-        }
-        
-        .button-group > * {
-            flex: 1; /* Hepsi eşit genişlikte olsun */
-        }
-    </style>
 </head>
 <body>
-
-<div class="container">
-    <h2 style="text-align: center; color: #333;">Edit Transaction</h2>
-
-    {% if messages %}
-        <div style="margin-bottom: 20px;">
-            {% for message in messages %}
-                <div style="padding: 10px; background-color: #f8d7da; color: #721c24; border-radius: 5px; text-align: center;">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
-
-    <form method="POST">
-        {% csrf_token %}
-        
-        <div class="form-group">
-            <label>Category Name:</label>
-            <input type="text" name="category_name" value="{{ transaction.category.name }}" required>
-        </div>
-
-        <div class="form-group">
-            <label>Amount (TL):</label>
-            <input type="number" name="amount" step="0.01" value="{{ transaction.amount }}" required>
-        </div>
-
-        <div class="form-group">
-            <label>Date:</label>
-            <input type="date" name="date" id="editDateInput" value="{{ transaction.date|date:'Y-m-d' }}" required>
-        </div>
-
-        <div class="form-group">
-            <label>Description:</label>
-            <input type="text" name="description" value="{{ transaction.description }}">
-        </div>
-
-        <button type="submit" class="btn btn-update">Update Transaction</button>
-    </form>
-
-    <div class="button-group">
-        <a href="{% url 'index' %}" class="btn btn-cancel">Cancel</a>
-
-        <form action="{% url 'delete_transaction' transaction.id %}" method="POST" style="margin: 0;">
+    <div class="container" style="max-width: 500px;">
+        <h2 style="text-align:center">Edit Transaction</h2>
+        <form method="POST">
             {% csrf_token %}
-            <button type="submit" class="btn btn-delete" onclick="return confirm('Are you sure?');">
-                Delete
-            </button>
+            <div class="form-group">
+                <label>Category Name</label>
+                <input type="text" name="category_name" value="{{ transaction.category.name }}" placeholder="e.g. food, travel" required>
+            </div>
+            <div class="form-group">
+                <label>Amount (TL)</label>
+                <input type="number" name="amount" step="0.01" value="{{ transaction.amount }}" required>
+            </div>
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" name="date" id="editDateInput" value="{{ transaction.date|date:'Y-m-d' }}" required>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <input type="text" name="description" value="{{ transaction.description }}">
+            </div>
+            <button type="submit" class="btn btn-success">Update Transaction</button>
         </form>
+
+        <div class="button-row">
+            <a href="{% url 'index' %}" class="btn btn-secondary">Cancel</a>
+            <form action="{% url 'delete_transaction' transaction.id %}" method="POST" style="width:100%;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?');">Delete</button>
+            </form>
+        </div>
     </div>
-</div>
-
-<script>
-    // Bugünün tarihini al (YYYY-MM-DD formatında)
-    const today = new Date().toISOString().split('T')[0];
-    // Inputa max özelliğini ekle (Yarını seçemesin)
-    document.getElementById('editDateInput').setAttribute('max', today);
-</script>
-
+    <script src="{% static 'script.js' %}"></script>
 </body>
 </html>

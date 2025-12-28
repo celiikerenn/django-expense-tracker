@@ -3,41 +3,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Account | Expense Tracker</title>
+    <title>Register</title>
     <link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
-<body style="background-color: #f4f6f8;"> <div class="auth-container">
+<body style="background-color: #f4f7f6;"> <div class="auth-container">
         <h2>Create Account</h2>
-        
         <form method="POST">
             {% csrf_token %}
-            
             {% for field in form %}
-                <div style="text-align: left; margin-bottom: 5px;">
-                    <label style="font-weight: bold; font-size: 14px; color: #333;">{{ field.label }}</label>
+                <div class="form-group">
+                    <label>{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <small style="display:block; color:#777; font-size:12px; margin-top:5px; text-align:left;">
+                            {{ field.help_text|safe }}
+                        </small>
+                    {% endif %}
                 </div>
-                {{ field }}
-                
-                {% if field.errors %}
-                    <div style="color: red; font-size: 12px; margin-bottom: 10px;">
-                        {% for error in field.errors %}
-                            {{ error }}
-                        {% endfor %}
-                    </div>
-                {% endif %}
-                
-                {% if field.help_text %}
-                    <small style="display: block; color: #777; font-size: 11px; margin-bottom: 15px; text-align: left;">
-                        {{ field.help_text|safe }}
-                    </small>
-                {% endif %}
             {% endfor %}
-
-            <button type="submit" class="auth-btn">Sign Up</button>
+            <button type="submit" class="btn btn-success">Sign Up</button>
         </form>
-
-        <a href="{% url 'login' %}" class="auth-link">Already have an account? Login here</a>
+        <p style="margin-top:20px;">
+            <a href="{% url 'login' %}" style="color:#4CAF50; text-decoration:none;">Already have an account? Login</a>
+        </p>
     </div>
 
 </body>
