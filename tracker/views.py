@@ -1,3 +1,4 @@
+import os
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Transaction, Category
 from django.contrib.auth.decorators import login_required
@@ -6,6 +7,8 @@ from django.contrib.auth import login, logout
 from django.http import HttpResponse
 from django.db.models import Sum
 from django.contrib import messages
+from django.conf import settings
+from django.http import HttpResponse
 
 # 1. Dashboard (Ana Sayfa)
 @login_required(login_url='login')
@@ -123,12 +126,6 @@ def logout_view(request):
     messages.success(request, 'You have been logged out successfully!')
     return redirect('login')
 
-from django.contrib.auth.models import User
-from django.http import HttpResponse
-
-def create_admin(request):
-    if not User.objects.filter(username='admin').exists():
-        User.objects.create_superuser('admin', 'admin@example.com' ,'admin')
-        return HttpResponse("Superuser 'admin' oluşturuldu! Şifre: admin")
-    else:
-        return HttpResponse("Bu kullanıcı zaten var.")
+def check_db(request):
+    db_info = settings.DATABASES['default']
+    return HttpResponse(f"Şu an bağlı olduğum veritabanı ayarı: {db_info}")
