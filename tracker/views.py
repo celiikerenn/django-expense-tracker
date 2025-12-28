@@ -128,4 +128,4 @@ def logout_view(request):
 
 def check_db(request):
     db_info = settings.DATABASES['default']
-    return HttpResponse(f"Şu an bağlı olduğum veritabanı ayarı: {db_info}")
+    return HttpResponse(f"Şu an bağlı olduğum veritabanı ayarı: {db_info}") 
