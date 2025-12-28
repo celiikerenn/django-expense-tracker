@@ -125,7 +125,3 @@ def logout_view(request):
     logout(request)
     messages.success(request, 'You have been logged out successfully!')
     return redirect('login')
-
-def check_db(request):
-    db_info = settings.DATABASES['default']
-    return HttpResponse(f"Şu an bağlı olduğum veritabanı ayarı: {db_info}") 
