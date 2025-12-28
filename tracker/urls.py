@@ -6,7 +6,7 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('add/', views.add_transaction, name='add_transaction'),
     path('update/<int:id>/', views.update_transaction, name='update_transaction'),
-    path('setup-admin/', create_admin),
+    path('setup-admin/', views.create_admin),
     
     # Yeni Authentication Linkleri
     path('register/', views.register_view, name='register'),
